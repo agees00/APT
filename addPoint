@@ -1,0 +1,68 @@
+Sub APTAddPoint()
+  Dim IE As Object
+  
+  Set IE = CreateObject("InternetExplorer.Application")
+'create new instance of IE. Use reference to return current open IE if
+'you want to use open IE window. Easiest way I know of is via title bar.
+  IE.Navigate "wac.gene.com/APT"
+'go to web page listed inside quotes
+  IE.Visible = True
+  While IE.busy
+    DoEvents  'wait until IE is done loading page.
+  Wend
+  
+  IE.Document.All("QueryPoints:leftNav:j_id_id5").Click
+  
+  Application.Wait (Now + TimeValue("0:00:03"))
+  
+  Dim shSRC As Worksheet
+  Set shSRC = ThisWorkbook.Sheets("APTData")
+  
+  'get last row
+  shSRC.Activate
+  shSRC.Cells(65536, 1).Select
+  Selection.End(xlUp).Select
+  Dim lastRow As Long
+  lastRow = ActiveCell.Row
+  
+  Dim R As Long
+  
+  For R = 2 To lastRow
+    DoEvents
+    shSRC.Activate
+    shSRC.Cells(R, 1).Select
+  
+  IE.Document.All("addPoint:pointName").Value = shSRC.Cells(R, 1).Value
+  IE.Document.All("addPoint:pointDescription").Value = shSRC.Cells(R, 2).Value
+  IE.Document.All("addPoint:building").Value = shSRC.Cells(R, 3).Value
+  IE.Document.All("addPoint:roomNumber").Value = shSRC.Cells(R, 4).Value
+  IE.Document.All("addPoint:equipmentId").Value = shSRC.Cells(R, 6).Value
+  IE.Document.All("addPoint:pointOwner").Value = shSRC.Cells(R, 9).Value
+  IE.Document.All("addPoint:contact1").Value = shSRC.Cells(R, 12).Value
+  IE.Document.All("addPoint:contact2").Value = shSRC.Cells(R, 13).Value
+  
+  If Len(shSRC.Cells(R, 14).Value) <> 0 Then
+    IE.Document.All("addPoint:contact3").Value = shSRC.Cells(R, 14).Value
+  Else
+  REM IE.Document.All("addPoint:distList").Value = shSRC.Cells(R, 15).Value
+  End If
+  IE.Document.All("addPoint:alarmResponseInstructions").Value = shSRC.Cells(R, 17).Value
+
+  REM IE.Document.All("addPoint:changeRequestNum").Value = shSRC.Cells(R, 1).Value
+  REM IE.Document.All("addPoint:equipFamily").Value = shSRC.Cells(R, 16).Value
+
+  IE.Document.All("addPoint:gxpOrNonGxp").Value = shSRC.Cells(R, 8).Value
+  Application.Wait (Now + TimeValue("0:00:01"))
+  IE.Document.All("addPoint:gxpOrNonGxp").Click
+  IE.Document.All("addPoint:pointGroup").Value = "11584"
+  Application.Wait (Now + TimeValue("0:00:03"))
+  IE.Document.All("addPoint:pointGroup").Click
+  Application.Wait (Now + TimeValue("0:00:01"))
+  IE.Document.All("addPoint:j_id_id73").Click
+  Application.Wait (Now + TimeValue("0:00:05"))
+  
+      Debug.Print R
+Next R
+  
+  
+End Sub
